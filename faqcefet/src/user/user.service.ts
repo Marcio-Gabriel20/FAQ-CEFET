@@ -27,16 +27,4 @@ export class UserService {
       where: { email },
     });
   }
-
-  // findAll() {
-  //   return `This action returns all user`;
-  // }
-
-  // update(id: number, updateUserDto: UpdateUserDto) {
-  //   return `This action updates a #${id} user`;
-  // }
-
-  // remove(id: number) {
-  //   return `This action removes a #${id} user`;
-  // }
 }
