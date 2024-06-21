@@ -17,9 +17,14 @@ export class LoginValidationMiddleware implements NestMiddleware {
         if (validations.length) {
             throw new BadRequestException(
                 validations.reduce((acc, curr) => {
-                return [...acc, ...Object.values(curr.constraints)];
+                    return [...acc, ...Object.values(curr.constraints)];
                 }, []),
             );
+        }
+
+        const emailDomain = "@cefet-rj.br";
+        if (!body.email.endsWith(emailDomain)) {
+            throw new BadRequestException(`Email must end with ${emailDomain}`);
         }
 
         next();

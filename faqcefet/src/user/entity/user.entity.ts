@@ -1,5 +1,7 @@
-import { Role } from "../enums/role.enum";
+import { ApiExtraModels } from "@nestjs/swagger";
+import { Role } from "../enum/role.enum";
 
+@ApiExtraModels()
 export class User {
     id?: number;
     email: string;

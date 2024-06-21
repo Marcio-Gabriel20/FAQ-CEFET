@@ -5,9 +5,10 @@ import { LocalStrategy } from './strategies/local.stategy';
 import { UserModule } from 'src/user/user.module';
 import { JwtModule } from '@nestjs/jwt';
 import { LoginValidationMiddleware } from './middleware/login-validation.middleware';
+import { PassportModule } from '@nestjs/passport';
 
 @Module({
-  imports: [UserModule, JwtModule.register({
+  imports: [PassportModule, UserModule, JwtModule.register({
     secret: process.env.JWT_SECRET,
     signOptions: { expiresIn: '30d' },
   })],
