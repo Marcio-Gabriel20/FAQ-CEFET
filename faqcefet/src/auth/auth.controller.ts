@@ -2,6 +2,7 @@ import { Controller, HttpCode, HttpStatus, Post, Request, UseGuards } from '@nes
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guard/local-auth.guard';
 import { AuthRequest } from './model/AuthRequest';
+import { IsPublic } from './decorator/is-public.decorator';
 
 @Controller()
 export class AuthController {
@@ -9,6 +10,7 @@ export class AuthController {
         private readonly authService: AuthService
     ) {}
 
+    @IsPublic()
     @Post('login')
     @HttpCode(HttpStatus.OK)
     @UseGuards(LocalAuthGuard)
