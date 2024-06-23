@@ -10,6 +10,7 @@ export class CreateQuestionValidationMiddleware implements NestMiddleware {
 
         const createQuestionRequestBody = new CreateQuestionRequestBody();
         createQuestionRequestBody.question = body.question;
+        createQuestionRequestBody.questionCategory = body.questionCategory;
 
         const validations = await validate(createQuestionRequestBody);
 

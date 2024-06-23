@@ -1,10 +1,11 @@
-import { Controller, HttpCode, HttpStatus, Post, Request, UseGuards } from '@nestjs/common';
+import { Controller, HttpCode, HttpStatus, Post, Request, UseFilters, UseGuards } from '@nestjs/common';
 import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { IsPublic } from './decorator/is-public.decorator';
 import { LocalAuthGuard } from './guard/local-auth.guard';
 import { AuthRequest } from './model/AuthRequest';
 import { LoginRequestBody } from './model/LoginRequestBody';
+import { LoginAuthExceptionFilter } from './exception/login-auth.exception';
 
 @ApiTags('auth')
 @Controller()
@@ -25,6 +26,7 @@ export class AuthController {
         },
     })
     @HttpCode(HttpStatus.OK)
+    @UseFilters(LoginAuthExceptionFilter)
     @UseGuards(LocalAuthGuard)
     login(@Request() req: AuthRequest) {
         return this.authService.login(req.user);

@@ -3,7 +3,6 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { User } from 'src/user/entity/user.entity';
 import { UserService } from 'src/user/user.service';
-import { UnauthorizedError } from './error/unauthorized.error';
 import { UserPayload } from './model/UserPayload';
 import { UserToken } from './model/UserToken';
 
@@ -39,8 +38,6 @@ export class AuthService {
                 };
             }
         }
-
-        throw new UnauthorizedError('Email address or password provided is incorrect.')
     }
 
 }

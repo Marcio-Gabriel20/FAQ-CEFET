@@ -7,4 +7,9 @@ export class CreateQuestionRequestBody {
     @IsString()
     @IsNotEmpty()
     question: string;
+
+    @ApiProperty()
+    @IsString()
+    @IsNotEmpty()
+    questionCategory: string;
 }

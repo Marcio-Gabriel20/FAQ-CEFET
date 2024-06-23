@@ -27,6 +27,8 @@ model Question {
   id       Int      @id @default(autoincrement())
   question String
   userId   Int
+  questionCategory QuestionCategory
+  files String[]
   user     User     @relation(fields: [userId], references: [id])
   answers  Answer[]
 }
@@ -35,6 +37,7 @@ model Answer {
   id         Int      @id @default(autoincrement())
   answer     String
   questionId Int
+  files String[]
   question   Question @relation(fields: [questionId], references: [id])
   userId     Int
   user       User     @relation(fields: [userId], references: [id])
@@ -43,4 +46,12 @@ model Answer {
 enum Role {
   STUDENT
   TEACHER
+  ADMINISTRATOR
+}
+
+enum QuestionCategory {
+  ADMISSION
+  COURSES
+  SCHEDULES
+  OTHER
 }
