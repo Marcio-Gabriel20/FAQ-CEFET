@@ -13,4 +13,8 @@ export class RedisCacheRepository {
     async getData<T>(key: string): Promise<T> {
         return JSON.parse(await this.redis.get(key)) as T;
     }
+
+    async deleteData(key: string): Promise<void> {
+        await this.redis.del(key);
+    }
 }

@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, UploadedFiles, UseFilters, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UploadedFiles, UseFilters, UseGuards, UseInterceptors } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Role, User } from '@prisma/client';
@@ -30,7 +30,7 @@ export class FaqController {
     @IsPublic()
     @Get('question/:id')
     @ApiResponse({ status: 200, type: QuestionResponse })
-    async getQuestion(@Param('id') id: string) {
+    async getQuestionById(@Param('id') id: string) {
         return this.faqService.getQuestionById(id);
     }
 
@@ -118,17 +118,17 @@ export class FaqController {
         schema: {
             type: 'object',
             properties: {
-                files: {
-                    type: 'array',
-                    items: {
-                        type: "string"
-                    }
-                },
                 answer: {
                     type: 'object',
                     properties: {
                         answer: { type: 'string' },
                         questionId: { type: 'number' },
+                    }
+                },
+                files: {
+                    type: 'array',
+                    items: {
+                        type: "string"
                     }
                 },
             }
@@ -138,11 +138,19 @@ export class FaqController {
         return this.faqService.createAnswer(user, createAnswerDto, files);
     }
 
-    @Delete('question')
+    @Delete('question/:questionId')
     @UseGuards(JwtAuthGuard)
     @UseFilters(AuthExceptionFilter)
     @ApiBearerAuth()
     async deleteQuestion(@CurrentUser() user: User, @Param('questionId') questionId: string) {
         return this.faqService.deleteQuestion(Number(questionId), user.id);
+    }
+
+    @Patch('question/:id')
+    @UseGuards(JwtAuthGuard)
+    @UseFilters(AuthExceptionFilter)
+    @ApiBearerAuth()
+    async updateQuestion(@Param('id') id: string, @Body() updateData: Partial<CreateQuestionDto>, @CurrentUser() user: User) {
+        await this.faqService.updateQuestion(Number(id), user.id, updateData);
     }
 }

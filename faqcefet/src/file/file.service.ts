@@ -2,7 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { User } from '@prisma/client';
 import * as crypto from 'crypto';
 import { writeFile } from 'fs/promises';
-import path, { extname, join } from 'path';
+import { extname, join } from 'path';
+import * as path from 'path';
 import { promises as fs } from 'fs';
 
 @Injectable()

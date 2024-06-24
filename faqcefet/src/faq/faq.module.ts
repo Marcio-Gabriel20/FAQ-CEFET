@@ -1,12 +1,13 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { RedisModule } from '@nestjs-modules/ioredis';
+import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { FileModule } from 'src/file/file.module';
 import { PrismaModule } from 'src/prisma/prisma.module';
+import { RedisCacheRepository } from './cache/repository/redis-cache.repository';
 import { FaqController } from './faq.controller';
 import { FaqService } from './faq.service';
 import { CreateQuestionValidationMiddleware } from './middleware/create-question-validation.middleware';
-import { ConfigModule } from '@nestjs/config';
-import { RedisModule } from '@nestjs-modules/ioredis';
-import { RedisCacheRepository } from './cache/repository/redis-cache.repository';
+import { ValidateStringMiddleware } from './middleware/validate-string.middleware';
 
 @Module({
     imports: [
@@ -30,6 +31,19 @@ import { RedisCacheRepository } from './cache/repository/redis-cache.repository'
 })
 export class FaqModule implements NestModule {
     configure(consumer: MiddlewareConsumer) {
-        consumer.apply(CreateQuestionValidationMiddleware).forRoutes('question');
+        consumer.apply(CreateQuestionValidationMiddleware).forRoutes({
+            path: 'question',
+            method: RequestMethod.POST
+        });
+        
+        consumer.apply(ValidateStringMiddleware.bind(null, 'id')).forRoutes({
+            path: 'question/:id',
+            method: RequestMethod.GET
+        });
+
+        consumer.apply(ValidateStringMiddleware.bind(null, 'questionId')).forRoutes({
+            path: 'question/:questionId',
+            method: RequestMethod.DELETE
+        });
     }
 }

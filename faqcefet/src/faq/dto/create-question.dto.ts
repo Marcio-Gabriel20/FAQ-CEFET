@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsNotEmpty, IsString } from "class-validator";
+import { IsEnum, IsNotEmpty, IsString } from "class-validator";
 import { Question } from "../entity/question.entity";
 import { QuestionCategory } from "@prisma/client";
 
@@ -11,6 +11,6 @@ export class CreateQuestionDto extends Question {
 
     @ApiProperty()
     @IsNotEmpty()
-    @IsString()
+    @IsEnum(QuestionCategory)
     questionCategory: QuestionCategory;
 }

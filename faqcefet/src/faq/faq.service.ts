@@ -1,12 +1,12 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, HttpStatus, Injectable } from '@nestjs/common';
 import { QuestionCategory, Role, User } from '@prisma/client';
 import * as fs from 'fs';
 import { join } from 'path';
 import { FileService } from 'src/file/file.service';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { RedisCacheRepository } from './cache/repository/redis-cache.repository';
 import { CreateAnswerDto } from './dto/create-answer.dto';
 import { CreateQuestionDto } from './dto/create-question.dto';
-import { RedisCacheRepository } from './cache/repository/redis-cache.repository';
 
 @Injectable()
 export class FaqService {
@@ -17,11 +17,15 @@ export class FaqService {
     ) {}
 
     async getAllQuestions() {
-        return this.prisma.question.findMany({
+        const questions = await this.prisma.question.findMany({
             include: {
                 answers: true,
             },
         });
+
+        if(questions) {
+            return questions;
+        }
     }
 
     async getQuestionById(id: string) {
@@ -39,11 +43,11 @@ export class FaqService {
             },
         });
 
-        console.log('Database response');
-
-        await this.redisCacheRepository.saveData(question, String(question.id));
-
-        return question;
+        if(question) {
+            console.log('Database response');
+            await this.redisCacheRepository.saveData(question, String(question.id));
+            return question;
+        }
     }
 
     async getQuestionsByCategory(category: QuestionCategory) {
@@ -134,6 +138,13 @@ export class FaqService {
             }
         }
 
+        const questionCache = await this.redisCacheRepository.getData(String(question.id));
+
+        if(questionCache) {
+            console.log('Cache response');
+            await this.redisCacheRepository.deleteData(String(question.id));
+        }
+
         const answers = await this.prisma.answer.findMany({
             where: { questionId: questionId },
         });
@@ -143,13 +154,42 @@ export class FaqService {
         }
 
         await this.prisma.answer.deleteMany({
-            where: { questionId: questionId }
+            where: { questionId: questionId },
         });
 
         await this.fileService.delete(question.files);
 
         await this.prisma.question.delete({
-            where: { id: questionId }
+            where: { id: questionId },
+        });
+    }
+
+    async updateQuestion(questionId: number, userId: number, updateData: Partial<CreateQuestionDto>): Promise<void> {
+        const question = await this.prisma.question.findUnique({
+            where: { id: questionId },
+        });
+
+        if(!question) {
+            throw new Error('Question not found');
+        }
+
+        if(question.userId !== userId) {
+            const user = await this.prisma.user.findUnique({
+                where: { id: userId },
+                select: { role: true }
+            });
+
+            if(!user || user.role !== Role.ADMINISTRATOR) {
+                throw new Error('Permission denied');
+            }
+        }
+
+        await this.prisma.question.update({
+            where: { id: questionId },
+            data: {
+                question: updateData.question,
+                questionCategory: updateData.questionCategory,
+            }
         });
     }
 }

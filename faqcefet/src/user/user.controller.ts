@@ -1,5 +1,5 @@
 import { Body, Controller, Post, UseFilters, UseGuards } from '@nestjs/common';
-import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { IsPublic } from 'src/auth/decorator/is-public.decorator';
 import { AuthExceptionFilter } from 'src/auth/exception/auth.exception';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
@@ -7,6 +7,7 @@ import { RolesGuard } from 'src/auth/guard/roles-auth.guard';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Role } from './enum/role.enum';
 import { UserService } from './user.service';
+import { Roles } from 'src/auth/decorator/roles.decorator';
 
 @ApiTags('user')
 @Controller('user')
@@ -15,10 +16,10 @@ export class UserController {
   
   @IsPublic()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  // @Roles(Role.ADMINISTRATOR)
+  @Roles(Role.ADMINISTRATOR)
   @UseFilters(AuthExceptionFilter)
   @Post()
-  // @ApiBearerAuth()
+  @ApiBearerAuth()
   @ApiBody({
     schema: {
       type: 'object',
